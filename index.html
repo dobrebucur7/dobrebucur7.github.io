@@ -1,294 +1,441 @@
-```jsx
-import { useState } from "react";
-import { Plus, Briefcase, Mail, Tag, Trash2, User, Clock } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ServiceConnect – Oferă-ți serviciile profesionale</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    :root {
+      --indigo: #4f46e5;
+      --indigo-light: #eef2ff;
+      --purple: #7c3aed;
+      --gray-100: #f9fafb;
+      --gray-200: #e5e7eb;
+      --gray-600: #4b5563;
+      --gray-800: #1f2937;
+      --white: #ffffff;
+    }
 
-export default function App() {
-  const [services, setServices] = useState([]);
-  const [form, setForm] = useState({
-    title: "",
-    description: "",
-    contact: "",
-    category: "Development",
-    availability: "Full-time"
-  });
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
 
-  const categories = [
-    "Development",
-    "Design",
-    "Marketing",
-    "Writing & Translation",
-    "Consulting",
-    "Video & Audio",
-    "Admin Support",
-    "Other"
-  ];
+    body {
+      background: linear-gradient(to bottom right, #f8fafc, #f0f4ff);
+      color: var(--gray-800);
+      line-height: 1.6;
+      padding: 2rem 1rem;
+    }
 
-  const availabilityOptions = [
-    "Full-time",
-    "Part-time",
-    "Project-based",
-    "Hourly"
-  ];
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!form.title || !form.description || !form.contact) return;
+    header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
 
-    const newService = {
-      id: Date.now(),
-      title: form.title,
-      description: form.description,
-      contact: form.contact,
-      category: form.category,
-      availability: form.availability,
-      date: new Date().toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      }),
-      views: Math.floor(Math.random() * 100) + 1
-    };
+    .logo {
+      width: 64px;
+      height: 64px;
+      background: var(--indigo-light);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.5rem;
+    }
 
-    setServices([newService, ...services]);
-    setForm({
-      title: "",
-      description: "",
-      contact: "",
-      category: "Development",
-      availability: "Full-time"
-    });
-  };
+    .logo i {
+      color: var(--indigo);
+      font-size: 24px;
+    }
 
-  const handleDelete = (id) => {
-    setServices(services.filter(service => service.id !== id));
-  };
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      background: linear-gradient(to right, var(--indigo), var(--purple));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      margin-bottom: 0.75rem;
+    }
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-indigo-50/30 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-6xl mx-auto">
-        <motion.header
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-10"
-        >
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-indigo-100 rounded-2xl mb-6">
-            <User className="h-8 w-8 text-indigo-600" />
+    .subtitle {
+      color: var(--gray-600);
+      max-width: 700px;
+      margin: 0 auto;
+      font-size: 1.1rem;
+    }
+
+    .grid {
+      display: grid;
+      gap: 2rem;
+    }
+
+    @media (min-width: 768px) {
+      .grid {
+        grid-template-columns: 1fr 2fr;
+      }
+    }
+
+    .card {
+      background: var(--white);
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+      border: 1px solid var(--gray-200);
+      padding: 1.5rem;
+    }
+
+    .card h2 {
+      font-size: 1.5rem;
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--gray-800);
+    }
+
+    .card h2 i {
+      color: var(--indigo);
+    }
+
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      color: var(--gray-800);
+    }
+
+    input, textarea, select {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--gray-200);
+      border-radius: 12px;
+      font-size: 1rem;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      outline: none;
+      border-color: var(--indigo);
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+    }
+
+    textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    button {
+      width: 100%;
+      background: linear-gradient(to right, var(--indigo), var(--purple));
+      color: white;
+      border: none;
+      padding: 0.85rem;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    button:hover {
+      transform: scale(1.02);
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+    }
+
+    .services-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .badge {
+      background: var(--indigo-light);
+      color: var(--indigo);
+      padding: 0.25rem 0.75rem;
+      border-radius: 50px;
+      font-size: 0.875rem;
+      font-weight: 600;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+      border: 2px dashed var(--gray-200);
+      border-radius: 16px;
+      color: var(--gray-600);
+    }
+
+    .empty-state i {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+      color: #d1d5db;
+    }
+
+    .service-card {
+      background: var(--white);
+      border: 1px solid var(--gray-200);
+      border-radius: 16px;
+      padding: 1.25rem;
+      margin-bottom: 1.25rem;
+      transition: box-shadow 0.2s;
+    }
+
+    .service-card:hover {
+      box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+    }
+
+    .service-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.75rem;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .tag {
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.25rem 0.5rem;
+      border-radius: 6px;
+    }
+
+    .category-dev { background: #dbeafe; color: #1d4ed8; }
+    .category-design { background: #fce7f3; color: #be185d; }
+    .category-marketing { background: #dcfce7; color: #166534; }
+    .category-writing { background: #fef3c7; color: #92400e; }
+    .category-consulting { background: #ede9fe; color: #6d28d9; }
+    .category-video { background: #fee2e2; color: #b91c1c; }
+    .category-admin { background: #ffedd5; color: #c2410c; }
+    .category-other { background: #e5e7eb; color: #374151; }
+
+    .availability-ft { background: #e0e7ff; color: #4338ca; }
+    .availability-pt { background: #cffafe; color: #0e7490; }
+    .availability-project { background: #fef3c7; color: #92400e; }
+    .availability-hourly { background: #d1fae5; color: #047857; }
+
+    .service-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      color: var(--gray-800);
+    }
+
+    .service-desc {
+      color: var(--gray-600);
+      margin-bottom: 1rem;
+      font-size: 0.95rem;
+    }
+
+    .service-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--gray-200);
+      font-size: 0.875rem;
+      color: var(--gray-600);
+    }
+
+    .delete-btn {
+      background: none;
+      border: none;
+      color: #ef4444;
+      cursor: pointer;
+      font-size: 0.875rem;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .delete-btn:hover {
+      transform: none;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="logo">
+        <i class="fas fa-user-tie"></i>
+      </div>
+      <h1>ServiceConnect</h1>
+      <p class="subtitle">Oferă-ți serviciile profesionale și conectează-te direct cu clienți. Fără comisioane, fără intermediari.</p>
+    </header>
+
+    <div class="grid">
+      <div class="card">
+        <h2><i class="fas fa-plus-circle"></i> Oferă-ți serviciul</h2>
+        <form id="serviceForm">
+          <div class="form-group">
+            <label for="title">Titlu serviciu</label>
+            <input type="text" id="title" placeholder="ex: Designer Grafic Senior" required />
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-700 to-purple-600 mb-4">
-            ServiceConnect
-          </h1>
-          <p className="text-lg text-slate-600 max-w-3xl mx-auto">
-            Showcase your professional services and connect directly with clients. 
-            No fees, no intermediaries – just your skills and opportunities.
-          </p>
-        </motion.header>
+          <div class="form-group">
+            <label for="category">Categorie</label>
+            <select id="category" required>
+              <option value="Development">Dezvoltare</option>
+              <option value="Design">Design</option>
+              <option value="Marketing">Marketing</option>
+              <option value="Writing & Translation">Scriere & Traducere</option>
+              <option value="Consulting">Consultanță</option>
+              <option value="Video & Audio">Video & Audio</option>
+              <option value="Admin Support">Suport Admin</option>
+              <option value="Other">Altele</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="availability">Disponibilitate</label>
+            <select id="availability" required>
+              <option value="Full-time">Full-time</option>
+              <option value="Part-time">Part-time</option>
+              <option value="Project-based">Pe proiect</option>
+              <option value="Hourly">Pe oră</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="description">Descriere</label>
+            <textarea id="description" placeholder="Descrie abilitățile, experiența și ce oferi..." required></textarea>
+          </div>
+          <div class="form-group">
+            <label for="contact">Email de contact</label>
+            <input type="email" id="contact" placeholder="nume@exemplu.com" required />
+          </div>
+          <button type="submit">Publică serviciul</button>
+        </form>
+      </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="lg:col-span-1"
-          >
-            <div className="bg-white rounded-2xl shadow-lg border border-slate-100 p-6 sticky top-8">
-              <h2 className="text-2xl font-bold text-slate-800 mb-6 flex items-center">
-                <Plus className="h-6 w-6 text-indigo-600 mr-2" />
-                Offer Your Service
-              </h2>
-              
-              <form onSubmit={handleSubmit} className="space-y-5">
-                <div>
-                  <label className="block text-slate-700 mb-1.5 font-medium">Service Title</label>
-                  <input
-                    type="text"
-                    value={form.title}
-                    onChange={(e) => setForm({...form, title: e.target.value})}
-                    placeholder="e.g., Senior Frontend Developer"
-                    className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-slate-700 mb-1.5 font-medium">Category</label>
-                  <select
-                    value={form.category}
-                    onChange={(e) => setForm({...form, category: e.target.value})}
-                    className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white transition-all"
-                  >
-                    {categories.map(category => (
-                      <option key={category} value={category}>
-                        {category}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-slate-700 mb-1.5 font-medium">Availability</label>
-                  <select
-                    value={form.availability}
-                    onChange={(e) => setForm({...form, availability: e.target.value})}
-                    className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white transition-all"
-                  >
-                    {availabilityOptions.map(option => (
-                      <option key={option} value={option}>
-                        {option}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-slate-700 mb-1.5 font-medium">Description</label>
-                  <textarea
-                    value={form.description}
-                    onChange={(e) => setForm({...form, description: e.target.value})}
-                    placeholder="Detail your skills, experience, and what you offer..."
-                    rows="4"
-                    className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-                    required
-                  ></textarea>
-                </div>
-
-                <div>
-                  <label className="block text-slate-700 mb-1.5 font-medium flex items-center">
-                    <Mail className="h-4 w-4 mr-2" />
-                    Contact Email
-                  </label>
-                  <input
-                    type="email"
-                    value={form.contact}
-                    onChange={(e) => setForm({...form, contact: e.target.value})}
-                    placeholder="yourname@domain.com"
-                    className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-                    required
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  className="w-full bg-gradient-to-r from-indigo-600 to-purple-700 hover:from-indigo-700 hover:to-purple-800 text-white font-bold py-3.5 px-6 rounded-xl transition-all transform hover:scale-[1.02] shadow-lg"
-                >
-                  <div className="flex items-center justify-center">
-                    <Plus className="h-5 w-5 mr-2" />
-                    Publish Service
-                  </div>
-                </button>
-              </form>
-            </div>
-          </motion.div>
-
-          <div className="lg:col-span-2">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="mb-8"
-            >
-              <div className="flex flex-wrap justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-slate-800 flex items-center">
-                  <Briefcase className="h-6 w-6 text-indigo-600 mr-2" />
-                  Available Services
-                </h2>
-                <span className="bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full font-medium text-sm">
-                  {services.length} services
-                </span>
-              </div>
-            </motion.div>
-
-            <AnimatePresence>
-              {services.length === 0 ? (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="text-center py-16 bg-white rounded-2xl border-2 border-dashed border-slate-200"
-                >
-                  <div className="inline-flex items-center justify-center w-14 h-14 bg-indigo-50 rounded-xl mb-5 mx-auto">
-                    <User className="h-7 w-7 text-indigo-400" />
-                  </div>
-                  <h3 className="text-xl font-bold text-slate-700 mb-2">No services available yet</h3>
-                  <p className="text-slate-500 max-w-md mx-auto px-4">
-                    Be the first to offer your professional services! Fill out the form to get started.
-                  </p>
-                </motion.div>
-              ) : (
-                <div className="grid gap-6">
-                  {services.map((service) => (
-                    <motion.div
-                      key={service.id}
-                      layout
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -20 }}
-                      className="bg-white rounded-2xl overflow-hidden border border-slate-100 hover:shadow-xl transition-shadow duration-300"
-                    >
-                      <div className="p-6">
-                        <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4">
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center justify-between mb-3">
-                              <span className={`px-3 py-1 text-xs font-medium rounded-full ${
-                                service.category === "Development" ? "bg-blue-50 text-blue-700" :
-                                service.category === "Design" ? "bg-pink-50 text-pink-700" :
-                                service.category === "Marketing" ? "bg-green-50 text-green-700" :
-                                service.category === "Writing & Translation" ? "bg-yellow-50 text-yellow-800" :
-                                service.category === "Consulting" ? "bg-purple-50 text-purple-700" :
-                                service.category === "Video & Audio" ? "bg-red-50 text-red-700" :
-                                service.category === "Admin Support" ? "bg-orange-50 text-orange-700" :
-                                "bg-gray-50 text-gray-700"
-                              }`}>
-                              {service.category}
-                            </span>
-                            <span className={`px-3 py-1 text-xs font-medium rounded-full ${
-                              service.availability === "Full-time" ? "bg-indigo-50 text-indigo-700" :
-                              service.availability === "Part-time" ? "bg-cyan-50 text-cyan-700" :
-                              service.availability === "Project-based" ? "bg-amber-50 text-amber-800" :
-                              "bg-emerald-50 text-emerald-700"
-                            }`}>
-                              {service.availability}
-                            </span>
-                          </div>
-                            <button
-                              onClick={() => handleDelete(service.id)}
-                              className="text-slate-400 hover:text-red-500 transition-colors p-1 hover:bg-red-50 rounded-full"
-                              aria-label="Delete service"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </button>
-                          </div>
-                          
-                          <h3 className="text-xl font-bold text-slate-800 mb-2 truncate">{service.title}</h3>
-                          
-                          <p className="text-slate-600 mb-4 line-clamp-3">
-                            {service.description}
-                          </p>
-                          
-                          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-3 border-t border-slate-100">
-                            <div className="flex flex-wrap gap-3">
-                              <div className="flex items-center text-sm text-slate-500">
-                                <Mail className="h-4 w-4 mr-1.5" />
-                                <span className="truncate max-w-[180px]">{service.contact}</span>
-                              </div>
-                              <div className="flex items-center text-sm text-slate-500">
-                                <Clock className="h-4 w-4 mr-1.5" />
-                                <span>{service.date}</span>
-                              </div>
-                            </div>
-                            <div className="flex items-center text-sm text-slate-400 bg-slate-50 px-3 py-1.5 rounded-xl">
-                              <span>👁️ {service.views} views</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-              )}
-            </AnimatePresence>
+      <div>
+        <div class="services-header">
+          <h2><i class="fas fa-briefcase"></i> Servicii disponibile</h2>
+          <span class="badge" id="servicesCount">0 servicii</span>
+        </div>
+        <div id="servicesList">
+          <div class="empty-state">
+            <i class="fas fa-user"></i>
+            <h3>Nu există servicii încă</h3>
+            <p>Fii primul care își oferă serviciile! Completează formularul din stânga.</p>
           </div>
         </div>
       </div>
     </div>
-  );
-}
-```
+  </div>
+
+  <script>
+    let services = JSON.parse(localStorage.getItem('services')) || [];
+    const servicesList = document.getElementById('servicesList');
+    const servicesCount = document.getElementById('servicesCount');
+    const form = document.getElementById('serviceForm');
+
+    function renderServices() {
+      servicesCount.textContent = `${services.length} servici${services.length === 1 ? 'u' : 'i'}`;
+      
+      if (services.length === 0) {
+        servicesList.innerHTML = `
+          <div class="empty-state">
+            <i class="fas fa-user"></i>
+            <h3>Nu există servicii încă</h3>
+            <p>Fii primul care își oferă serviciile! Completează formularul din stânga.</p>
+          </div>
+        `;
+        return;
+      }
+
+      servicesList.innerHTML = '';
+      services.forEach(service => {
+        const date = new Date(service.timestamp).toLocaleDateString('ro-RO', {
+          day: 'numeric',
+          month: 'short',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+
+        const categoryClass = {
+          'Development': 'category-dev',
+          'Design': 'category-design',
+          'Marketing': 'category-marketing',
+          'Writing & Translation': 'category-writing',
+          'Consulting': 'category-consulting',
+          'Video & Audio': 'category-video',
+          'Admin Support': 'category-admin',
+          'Other': 'category-other'
+        }[service.category] || 'category-other';
+
+        const availabilityClass = {
+          'Full-time': 'availability-ft',
+          'Part-time': 'availability-pt',
+          'Project-based': 'availability-project',
+          'Hourly': 'availability-hourly'
+        }[service.availability] || 'availability-hourly';
+
+        const serviceEl = document.createElement('div');
+        serviceEl.className = 'service-card';
+        serviceEl.innerHTML = `
+          <div class="service-header">
+            <span class="tag ${categoryClass}">${service.category}</span>
+            <span class="tag ${availabilityClass}">${service.availability}</span>
+            <button class="delete-btn" data-id="${service.id}">
+              <i class="fas fa-trash"></i> Șterge
+            </button>
+          </div>
+          <h3 class="service-title">${service.title}</h3>
+          <p class="service-desc">${service.description}</p>
+          <div class="service-footer">
+            <div>
+              <i class="fas fa-envelope"></i> ${service.contact}
+            </div>
+            <div>
+              <i class="fas fa-clock"></i> ${date}
+            </div>
+          </div>
+        `;
+        servicesList.appendChild(serviceEl);
+      });
+
+      // Add delete listeners
+      document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = parseInt(btn.dataset.id);
+          services = services.filter(s => s.id !== id);
+          localStorage.setItem('services', JSON.stringify(services));
+          renderServices();
+        });
+      });
+    }
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const newService = {
+        id: Date.now(),
+        title: document.getElementById('title').value,
+        category: document.getElementById('category').value,
+        availability: document.getElementById('availability').value,
+        description: document.getElementById('description').value,
+        contact: document.getElementById('contact').value,
+        timestamp: Date.now()
+      };
+      services.unshift(newService);
+      localStorage.setItem('services', JSON.stringify(services));
+      form.reset();
+      renderServices();
+    });
+
+    renderServices();
+  </script>
+</body>
+</html>
