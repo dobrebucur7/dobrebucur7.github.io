@@ -1,5 +1,5 @@
 <script>
-  // 🔥 Firebase config — folosește UNUL dintre proiectele tale (recomand primul)
+  // 🔥 Configurația Firebase – folosește UN singur proiect
   const firebaseConfig = {
     apiKey: "AIzaSyDL7CpWuxJOVjQPFMY0CmTT32YnmI8ze2A",
     authDomain: "mester-manole-job.firebaseapp.com",
@@ -10,97 +10,106 @@
     appId: "1:470418949962:web:b4f8df67587837aba7e3b3"
   };
 
-  // Initialize Firebase (compat version - merge în HTML simplu)
+  // Initialize Firebase (compatibil cu HTML simplu)
   firebase.initializeApp(firebaseConfig);
   const database = firebase.database();
   const servicesRef = database.ref('services');
 
-  // DOM elements
-  const servicesList = document.getElementById('servicesList');
-  const servicesCount = document.getElementById('servicesCount');
-  const form = document.getElementById('serviceForm');
+  // Așteaptă ca DOM-ul să fie gata
+  document.addEventListener('DOMContentLoaded', () => {
+    const servicesList = document.getElementById('servicesList');
+    const servicesCount = document.getElementById('servicesCount');
+    const form = document.getElementById('serviceForm');
 
-  // Render services din Firebase
-  function renderServices(servicesArray) {
-    servicesCount.textContent = `${servicesArray.length} servici${servicesArray.length === 1 ? 'u' : 'i'}`;
-    
-    if (servicesArray.length === 0) {
-      servicesList.innerHTML = `
-        <div class="empty-state">
-          <i class="fas fa-user"></i>
-          <h3>Nu există servicii încă</h3>
-          <p>Fii primul care își oferă serviciile!</p>
-        </div>
-      `;
+    if (!servicesList || !servicesCount || !form) {
+      console.error("Elemente lipsă în HTML!");
       return;
     }
 
-    servicesArray.sort((a, b) => b.timestamp - a.timestamp);
-    
-    servicesList.innerHTML = '';
-    servicesArray.forEach(service => {
-      const date = new Date(service.timestamp).toLocaleDateString('ro-RO', {
-        day: 'numeric',
-        month: 'short',
-        hour: '2-digit',
-        minute: '2-digit'
+    // Funcție de afișare servicii
+    function renderServices(servicesArray) {
+      servicesCount.textContent = `${servicesArray.length} servici${servicesArray.length === 1 ? 'u' : 'i'}`;
+      
+      if (servicesArray.length === 0) {
+        servicesList.innerHTML = `
+          <div class="empty-state">
+            <i class="fas fa-user"></i>
+            <h3>Nu există servicii încă</h3>
+            <p>Fii primul care își oferă serviciile!</p>
+          </div>
+        `;
+        return;
+      }
+
+      servicesArray.sort((a, b) => b.timestamp - a.timestamp);
+      servicesList.innerHTML = '';
+      
+      servicesArray.forEach(service => {
+        const date = new Date(service.timestamp).toLocaleDateString('ro-RO', {
+          day: 'numeric',
+          month: 'short',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+
+        const categoryClass = {
+          'Development': 'category-dev',
+          'Design': 'category-design',
+          'Marketing': 'category-marketing',
+          'Writing & Translation': 'category-writing',
+          'Consulting': 'category-consulting',
+          'Video & Audio': 'category-video',
+          'Admin Support': 'category-admin',
+          'Other': 'category-other'
+        }[service.category] || 'category-other';
+
+        const availabilityClass = {
+          'Full-time': 'availability-ft',
+          'Part-time': 'availability-pt',
+          'Project-based': 'availability-project',
+          'Hourly': 'availability-hourly'
+        }[service.availability] || 'availability-hourly';
+
+        const serviceEl = document.createElement('div');
+        serviceEl.className = 'service-card';
+        serviceEl.innerHTML = `
+          <div class="service-header">
+            <span class="tag ${categoryClass}">${service.category}</span>
+            <span class="tag ${availabilityClass}">${service.availability}</span>
+          </div>
+          <h3 class="service-title">${service.title}</h3>
+          <p class="service-desc">${service.description}</p>
+          <div class="service-footer">
+            <div><i class="fas fa-envelope"></i> ${service.contact}</div>
+            <div><i class="fas fa-clock"></i> ${date}</div>
+          </div>
+        `;
+        servicesList.appendChild(serviceEl);
       });
+    }
 
-      const categoryClass = {
-        'Development': 'category-dev',
-        'Design': 'category-design',
-        'Marketing': 'category-marketing',
-        'Writing & Translation': 'category-writing',
-        'Consulting': 'category-consulting',
-        'Video & Audio': 'category-video',
-        'Admin Support': 'category-admin',
-        'Other': 'category-other'
-      }[service.category] || 'category-other';
-
-      const availabilityClass = {
-        'Full-time': 'availability-ft',
-        'Part-time': 'availability-pt',
-        'Project-based': 'availability-project',
-        'Hourly': 'availability-hourly'
-      }[service.availability] || 'availability-hourly';
-
-      const serviceEl = document.createElement('div');
-      serviceEl.className = 'service-card';
-      serviceEl.innerHTML = `
-        <div class="service-header">
-          <span class="tag ${categoryClass}">${service.category}</span>
-          <span class="tag ${availabilityClass}">${service.availability}</span>
-        </div>
-        <h3 class="service-title">${service.title}</h3>
-        <p class="service-desc">${service.description}</p>
-        <div class="service-footer">
-          <div><i class="fas fa-envelope"></i> ${service.contact}</div>
-          <div><i class="fas fa-clock"></i> ${date}</div>
-        </div>
-      `;
-      servicesList.appendChild(serviceEl);
+    // Încarcă datele din Firebase
+    servicesRef.on('value', (snapshot) => {
+      const data = snapshot.val();
+      const servicesArray = data ? Object.values(data) : [];
+      renderServices(servicesArray);
     });
-  }
 
-  // Load data from Firebase
-  servicesRef.on('value', (snapshot) => {
-    const data = snapshot.val();
-    const servicesArray = data ? Object.values(data) : [];
-    renderServices(servicesArray);
-  });
-
-  // Handle form submit
-  form.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const newService = {
-      title: document.getElementById('title').value,
-      category: document.getElementById('category').value,
-      availability: document.getElementById('availability').value,
-      description: document.getElementById('description').value,
-      contact: document.getElementById('contact').value,
-      timestamp: firebase.database.ServerValue.TIMESTAMP
-    };
-    servicesRef.push(newService);
-    form.reset();
+    // Trimite formularul
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const newService = {
+        title: document.getElementById('title').value.trim(),
+        category: document.getElementById('category').value,
+        availability: document.getElementById('availability').value,
+        description: document.getElementById('description').value.trim(),
+        contact: document.getElementById('contact').value.trim(),
+        timestamp: firebase.database.ServerValue.TIMESTAMP
+      };
+      if (newService.title && newService.description && newService.contact) {
+        servicesRef.push(newService);
+        form.reset();
+      }
+    });
   });
 </script>
