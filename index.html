@@ -6,7 +6,7 @@
   <title>Mester Manole Job</title>
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-  <!-- Firebase SDK-uri compatibile -->
+  <!-- Firebase SDK compatibile -->
   <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-database-compat.js"></script>
   <style>
@@ -204,6 +204,7 @@
       margin-bottom: 0.75rem;
       flex-wrap: wrap;
       gap: 0.5rem;
+      align-items: center;
     }
 
     .tag {
@@ -250,6 +251,21 @@
       border-top: 1px solid var(--gray-200);
       font-size: 0.875rem;
       color: var(--gray-600);
+    }
+
+    .delete-btn {
+      background: none;
+      border: none;
+      color: #ef4444;
+      font-size: 0.875rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .delete-btn:hover {
+      text-decoration: underline;
     }
   </style>
 </head>
@@ -322,16 +338,18 @@
   </div>
 
   <script>
+    // 🔥 Configurația corectă pentru proiectul tău
     const firebaseConfig = {
-      apiKey: "AIzaSyDL7CpWuxJOVjQPFMY0CmTT32YnmI8ze2A",
-      authDomain: "mester-manole-job.firebaseapp.com",
+      apiKey: "AIzaSyAeXyy5chYq42dEcIhNqi4zhjAEmp0Dzw4",
+      authDomain: "mester-manole-job-22923.firebaseapp.com",
       databaseURL: "https://mester-manole-job-22923-default-rtdb.europe-west1.firebasedatabase.app",
-      projectId: "mester-manole-job-22923",,
-      storageBucket: "mester-manole-job.appspot.com",
-      messagingSenderId: "470418949962",
-      appId: "1:470418949962:web:b4f8df67587837aba7e3b3"
+      projectId: "mester-manole-job-22923",
+      storageBucket: "mester-manole-job-22923.firebasestorage.app",
+      messagingSenderId: "651369741320",
+      appId: "1:651369741320:web:cff5e337d11b73d6cca5bd"
     };
 
+    // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
     const servicesRef = database.ref('services');
@@ -388,6 +406,9 @@
             <div class="service-header">
               <span class="tag ${categoryClass}">${service.category}</span>
               <span class="tag ${availabilityClass}">${service.availability}</span>
+              <button class="delete-btn" data-key="${service.key}">
+                <i class="fas fa-trash"></i> Șterge
+              </button>
             </div>
             <h3 class="service-title">${service.title}</h3>
             <p class="service-desc">${service.description}</p>
@@ -398,14 +419,28 @@
           `;
           servicesList.appendChild(el);
         });
+
+        // Adaugă event listeners pentru ștergere
+        document.querySelectorAll('.delete-btn').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            if (confirm('Ești sigur că vrei să ștergi acest anunț?')) {
+              const key = e.currentTarget.dataset.key;
+              servicesRef.child(key).remove();
+            }
+          });
+        });
       }
 
+      // Ascultă schimbările din Firebase
       servicesRef.on('value', (snapshot) => {
         const data = snapshot.val();
-        const array = data ? Object.values(data) : [];
+        const array = data 
+          ? Object.entries(data).map(([key, value]) => ({ ...value, key }))
+          : [];
         renderServices(array);
       });
 
+      // Trimite formularul
       form.addEventListener('submit', (e) => {
         e.preventDefault();
         const service = {
@@ -425,3 +460,4 @@
   </script>
 </body>
 </html>
+
