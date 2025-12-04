@@ -1,441 +1,106 @@
-<!DOCTYPE html>
-<html lang="ro">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ServiceConnect – Oferă-ți serviciile profesionale</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-  <style>
-    :root {
-      --indigo: #4f46e5;
-      --indigo-light: #eef2ff;
-      --purple: #7c3aed;
-      --gray-100: #f9fafb;
-      --gray-200: #e5e7eb;
-      --gray-600: #4b5563;
-      --gray-800: #1f2937;
-      --white: #ffffff;
-    }
+<script>
+  // 🔥 Firebase config — folosește UNUL dintre proiectele tale (recomand primul)
+  const firebaseConfig = {
+    apiKey: "AIzaSyDL7CpWuxJOVjQPFMY0CmTT32YnmI8ze2A",
+    authDomain: "mester-manole-job.firebaseapp.com",
+    databaseURL: "https://mester-manole-job-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "mester-manole-job",
+    storageBucket: "mester-manole-job.appspot.com",
+    messagingSenderId: "470418949962",
+    appId: "1:470418949962:web:b4f8df67587837aba7e3b3"
+  };
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    }
+  // Initialize Firebase (compat version - merge în HTML simplu)
+  firebase.initializeApp(firebaseConfig);
+  const database = firebase.database();
+  const servicesRef = database.ref('services');
 
-    body {
-      background: linear-gradient(to bottom right, #f8fafc, #f0f4ff);
-      color: var(--gray-800);
-      line-height: 1.6;
-      padding: 2rem 1rem;
-    }
+  // DOM elements
+  const servicesList = document.getElementById('servicesList');
+  const servicesCount = document.getElementById('servicesCount');
+  const form = document.getElementById('serviceForm');
 
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-
-    header {
-      text-align: center;
-      margin-bottom: 3rem;
-    }
-
-    .logo {
-      width: 64px;
-      height: 64px;
-      background: var(--indigo-light);
-      border-radius: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto 1.5rem;
-    }
-
-    .logo i {
-      color: var(--indigo);
-      font-size: 24px;
-    }
-
-    h1 {
-      font-size: 2.5rem;
-      font-weight: 800;
-      background: linear-gradient(to right, var(--indigo), var(--purple));
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-      margin-bottom: 0.75rem;
-    }
-
-    .subtitle {
-      color: var(--gray-600);
-      max-width: 700px;
-      margin: 0 auto;
-      font-size: 1.1rem;
-    }
-
-    .grid {
-      display: grid;
-      gap: 2rem;
-    }
-
-    @media (min-width: 768px) {
-      .grid {
-        grid-template-columns: 1fr 2fr;
-      }
-    }
-
-    .card {
-      background: var(--white);
-      border-radius: 16px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-      border: 1px solid var(--gray-200);
-      padding: 1.5rem;
-    }
-
-    .card h2 {
-      font-size: 1.5rem;
-      margin-bottom: 1.25rem;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      color: var(--gray-800);
-    }
-
-    .card h2 i {
-      color: var(--indigo);
-    }
-
-    .form-group {
-      margin-bottom: 1.25rem;
-    }
-
-    label {
-      display: block;
-      margin-bottom: 0.5rem;
-      font-weight: 600;
-      color: var(--gray-800);
-    }
-
-    input, textarea, select {
-      width: 100%;
-      padding: 0.75rem 1rem;
-      border: 1px solid var(--gray-200);
-      border-radius: 12px;
-      font-size: 1rem;
-    }
-
-    input:focus, textarea:focus, select:focus {
-      outline: none;
-      border-color: var(--indigo);
-      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
-    }
-
-    textarea {
-      min-height: 120px;
-      resize: vertical;
-    }
-
-    button {
-      width: 100%;
-      background: linear-gradient(to right, var(--indigo), var(--purple));
-      color: white;
-      border: none;
-      padding: 0.85rem;
-      border-radius: 12px;
-      font-weight: 700;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-
-    button:hover {
-      transform: scale(1.02);
-      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
-    }
-
-    .services-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1.5rem;
-    }
-
-    .badge {
-      background: var(--indigo-light);
-      color: var(--indigo);
-      padding: 0.25rem 0.75rem;
-      border-radius: 50px;
-      font-size: 0.875rem;
-      font-weight: 600;
-    }
-
-    .empty-state {
-      text-align: center;
-      padding: 3rem 1rem;
-      border: 2px dashed var(--gray-200);
-      border-radius: 16px;
-      color: var(--gray-600);
-    }
-
-    .empty-state i {
-      font-size: 2rem;
-      margin-bottom: 1rem;
-      color: #d1d5db;
-    }
-
-    .service-card {
-      background: var(--white);
-      border: 1px solid var(--gray-200);
-      border-radius: 16px;
-      padding: 1.25rem;
-      margin-bottom: 1.25rem;
-      transition: box-shadow 0.2s;
-    }
-
-    .service-card:hover {
-      box-shadow: 0 6px 20px rgba(0,0,0,0.08);
-    }
-
-    .service-header {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 0.75rem;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-    }
-
-    .tag {
-      font-size: 0.75rem;
-      font-weight: 600;
-      padding: 0.25rem 0.5rem;
-      border-radius: 6px;
-    }
-
-    .category-dev { background: #dbeafe; color: #1d4ed8; }
-    .category-design { background: #fce7f3; color: #be185d; }
-    .category-marketing { background: #dcfce7; color: #166534; }
-    .category-writing { background: #fef3c7; color: #92400e; }
-    .category-consulting { background: #ede9fe; color: #6d28d9; }
-    .category-video { background: #fee2e2; color: #b91c1c; }
-    .category-admin { background: #ffedd5; color: #c2410c; }
-    .category-other { background: #e5e7eb; color: #374151; }
-
-    .availability-ft { background: #e0e7ff; color: #4338ca; }
-    .availability-pt { background: #cffafe; color: #0e7490; }
-    .availability-project { background: #fef3c7; color: #92400e; }
-    .availability-hourly { background: #d1fae5; color: #047857; }
-
-    .service-title {
-      font-size: 1.25rem;
-      font-weight: 700;
-      margin-bottom: 0.5rem;
-      color: var(--gray-800);
-    }
-
-    .service-desc {
-      color: var(--gray-600);
-      margin-bottom: 1rem;
-      font-size: 0.95rem;
-    }
-
-    .service-footer {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 0.75rem;
-      padding-top: 0.75rem;
-      border-top: 1px solid var(--gray-200);
-      font-size: 0.875rem;
-      color: var(--gray-600);
-    }
-
-    .delete-btn {
-      background: none;
-      border: none;
-      color: #ef4444;
-      cursor: pointer;
-      font-size: 0.875rem;
-      display: flex;
-      align-items: center;
-      gap: 0.25rem;
-    }
-
-    .delete-btn:hover {
-      transform: none;
-      text-decoration: underline;
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <header>
-      <div class="logo">
-  <img src="WhatsApp Image 2025-12-04 at 15.23.49.jpeg" alt="Mester Manole Job" style="width: 100%; height: auto; max-width: 240px;" />
-</div>
-      <h1>ServiceConnect</h1>
-      <p class="subtitle">Oferă-ți serviciile profesionale și conectează-te direct cu clienți. Fără comisioane, fără intermediari.</p>
-    </header>
-
-    <div class="grid">
-      <div class="card">
-        <h2><i class="fas fa-plus-circle"></i> Oferă-ți serviciul</h2>
-        <form id="serviceForm">
-          <div class="form-group">
-            <label for="title">Titlu serviciu</label>
-            <input type="text" id="title" placeholder="ex: Designer Grafic Senior" required />
-          </div>
-          <div class="form-group">
-            <label for="category">Categorie</label>
-            <select id="category" required>
-              <option value="Development">Dezvoltare</option>
-              <option value="Design">Design</option>
-              <option value="Marketing">Marketing</option>
-              <option value="Writing & Translation">Scriere & Traducere</option>
-              <option value="Consulting">Consultanță</option>
-              <option value="Video & Audio">Video & Audio</option>
-              <option value="Admin Support">Suport Admin</option>
-              <option value="Other">Altele</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="availability">Disponibilitate</label>
-            <select id="availability" required>
-              <option value="Full-time">Full-time</option>
-              <option value="Part-time">Part-time</option>
-              <option value="Project-based">Pe proiect</option>
-              <option value="Hourly">Pe oră</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="description">Descriere</label>
-            <textarea id="description" placeholder="Descrie abilitățile, experiența și ce oferi..." required></textarea>
-          </div>
-          <div class="form-group">
-            <label for="contact">Email de contact</label>
-            <input type="email" id="contact" placeholder="nume@exemplu.com" required />
-          </div>
-          <button type="submit">Publică serviciul</button>
-        </form>
-      </div>
-
-      <div>
-        <div class="services-header">
-          <h2><i class="fas fa-briefcase"></i> Servicii disponibile</h2>
-          <span class="badge" id="servicesCount">0 servicii</span>
+  // Render services din Firebase
+  function renderServices(servicesArray) {
+    servicesCount.textContent = `${servicesArray.length} servici${servicesArray.length === 1 ? 'u' : 'i'}`;
+    
+    if (servicesArray.length === 0) {
+      servicesList.innerHTML = `
+        <div class="empty-state">
+          <i class="fas fa-user"></i>
+          <h3>Nu există servicii încă</h3>
+          <p>Fii primul care își oferă serviciile!</p>
         </div>
-        <div id="servicesList">
-          <div class="empty-state">
-            <i class="fas fa-user"></i>
-            <h3>Nu există servicii încă</h3>
-            <p>Fii primul care își oferă serviciile! Completează formularul din stânga.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+      `;
+      return;
+    }
 
-  <script>
-    let services = JSON.parse(localStorage.getItem('services')) || [];
-    const servicesList = document.getElementById('servicesList');
-    const servicesCount = document.getElementById('servicesCount');
-    const form = document.getElementById('serviceForm');
-
-    function renderServices() {
-      servicesCount.textContent = `${services.length} servici${services.length === 1 ? 'u' : 'i'}`;
-      
-      if (services.length === 0) {
-        servicesList.innerHTML = `
-          <div class="empty-state">
-            <i class="fas fa-user"></i>
-            <h3>Nu există servicii încă</h3>
-            <p>Fii primul care își oferă serviciile! Completează formularul din stânga.</p>
-          </div>
-        `;
-        return;
-      }
-
-      servicesList.innerHTML = '';
-      services.forEach(service => {
-        const date = new Date(service.timestamp).toLocaleDateString('ro-RO', {
-          day: 'numeric',
-          month: 'short',
-          hour: '2-digit',
-          minute: '2-digit'
-        });
-
-        const categoryClass = {
-          'Development': 'category-dev',
-          'Design': 'category-design',
-          'Marketing': 'category-marketing',
-          'Writing & Translation': 'category-writing',
-          'Consulting': 'category-consulting',
-          'Video & Audio': 'category-video',
-          'Admin Support': 'category-admin',
-          'Other': 'category-other'
-        }[service.category] || 'category-other';
-
-        const availabilityClass = {
-          'Full-time': 'availability-ft',
-          'Part-time': 'availability-pt',
-          'Project-based': 'availability-project',
-          'Hourly': 'availability-hourly'
-        }[service.availability] || 'availability-hourly';
-
-        const serviceEl = document.createElement('div');
-        serviceEl.className = 'service-card';
-        serviceEl.innerHTML = `
-          <div class="service-header">
-            <span class="tag ${categoryClass}">${service.category}</span>
-            <span class="tag ${availabilityClass}">${service.availability}</span>
-            <button class="delete-btn" data-id="${service.id}">
-              <i class="fas fa-trash"></i> Șterge
-            </button>
-          </div>
-          <h3 class="service-title">${service.title}</h3>
-          <p class="service-desc">${service.description}</p>
-          <div class="service-footer">
-            <div>
-              <i class="fas fa-envelope"></i> ${service.contact}
-            </div>
-            <div>
-              <i class="fas fa-clock"></i> ${date}
-            </div>
-          </div>
-        `;
-        servicesList.appendChild(serviceEl);
+    servicesArray.sort((a, b) => b.timestamp - a.timestamp);
+    
+    servicesList.innerHTML = '';
+    servicesArray.forEach(service => {
+      const date = new Date(service.timestamp).toLocaleDateString('ro-RO', {
+        day: 'numeric',
+        month: 'short',
+        hour: '2-digit',
+        minute: '2-digit'
       });
 
-      // Add delete listeners
-      document.querySelectorAll('.delete-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const id = parseInt(btn.dataset.id);
-          services = services.filter(s => s.id !== id);
-          localStorage.setItem('services', JSON.stringify(services));
-          renderServices();
-        });
-      });
-    }
+      const categoryClass = {
+        'Development': 'category-dev',
+        'Design': 'category-design',
+        'Marketing': 'category-marketing',
+        'Writing & Translation': 'category-writing',
+        'Consulting': 'category-consulting',
+        'Video & Audio': 'category-video',
+        'Admin Support': 'category-admin',
+        'Other': 'category-other'
+      }[service.category] || 'category-other';
 
-    form.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const newService = {
-        id: Date.now(),
-        title: document.getElementById('title').value,
-        category: document.getElementById('category').value,
-        availability: document.getElementById('availability').value,
-        description: document.getElementById('description').value,
-        contact: document.getElementById('contact').value,
-        timestamp: Date.now()
-      };
-      services.unshift(newService);
-      localStorage.setItem('services', JSON.stringify(services));
-      form.reset();
-      renderServices();
+      const availabilityClass = {
+        'Full-time': 'availability-ft',
+        'Part-time': 'availability-pt',
+        'Project-based': 'availability-project',
+        'Hourly': 'availability-hourly'
+      }[service.availability] || 'availability-hourly';
+
+      const serviceEl = document.createElement('div');
+      serviceEl.className = 'service-card';
+      serviceEl.innerHTML = `
+        <div class="service-header">
+          <span class="tag ${categoryClass}">${service.category}</span>
+          <span class="tag ${availabilityClass}">${service.availability}</span>
+        </div>
+        <h3 class="service-title">${service.title}</h3>
+        <p class="service-desc">${service.description}</p>
+        <div class="service-footer">
+          <div><i class="fas fa-envelope"></i> ${service.contact}</div>
+          <div><i class="fas fa-clock"></i> ${date}</div>
+        </div>
+      `;
+      servicesList.appendChild(serviceEl);
     });
+  }
 
-    renderServices();
-  </script>
-</body>
-</html>
+  // Load data from Firebase
+  servicesRef.on('value', (snapshot) => {
+    const data = snapshot.val();
+    const servicesArray = data ? Object.values(data) : [];
+    renderServices(servicesArray);
+  });
+
+  // Handle form submit
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const newService = {
+      title: document.getElementById('title').value,
+      category: document.getElementById('category').value,
+      availability: document.getElementById('availability').value,
+      description: document.getElementById('description').value,
+      contact: document.getElementById('contact').value,
+      timestamp: firebase.database.ServerValue.TIMESTAMP
+    };
+    servicesRef.push(newService);
+    form.reset();
+  });
+</script>
